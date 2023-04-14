@@ -24,6 +24,8 @@ use SOFe\AwaitGenerator\Await;
 use SOFe\AwaitStd\AwaitStd;
 use Threaded;
 
+use IvanCraft623\RankSystem\RankSystem;
+
 class Main extends PluginBase implements Listener{
 
 	private VotingThread $thread;
@@ -47,6 +49,7 @@ class Main extends PluginBase implements Listener{
 
 		$this->autoclaim = (bool) $this->getConfig()->get("autoclaim");
 		$this->key = $this->getConfig()->get("key");
+		$this->eco = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
 
 		if($this->key === ""){
 			$this->getLogger()->emergency("No vote api key found in the config, disabling plugin");
@@ -76,9 +79,14 @@ class Main extends PluginBase implements Listener{
 		}
 
 		if($event->shouldGiveRewards()){
-			foreach($this->getConfig()->get("commands") as $v){
+			/*foreach($this->getConfig()->get("commands") as $v){
 				$this->getServer()->dispatchCommand(new ConsoleCommandSender($this->getServer(), $this->getServer()->getLanguage()), str_replace("{username}", $player->getName(), $v));
-			}
+			}*/
+			$ranksystem = RankSystem::getInstance()->getSessionManager();
+			$session = $ranksystem->get($player->getName());
+			$session->setRank("Voter", time() + 86400);
+			
+			$this->eco->addMoney($player, 25000);
 		}
 	}
 
